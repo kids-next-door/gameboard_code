@@ -32,7 +32,7 @@ class gameboard {
 
         //Wrapper for registering wiringPi ISRs
         inline int registerISR(button_t b, void (*isr)()) {
-            wiringPi::wiringPiISR(b, INT_EDGE_RISING,isr)
+            wiringPi::wiringPiISR(b, INT_EDGE_RISING,isr);
         }
 
     private:
@@ -43,5 +43,7 @@ class gameboard {
         gameboard(gameboard const &) =  delete;
         void operator=(gameboard const &) = delete;
 
-}
-}
+}; //end class
+} //end namespace
+
+#endif 
