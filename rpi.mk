@@ -49,6 +49,6 @@ CPPFLAGS += -I$(RPIFS)/usr/local/include
 # -l Specify the name of the library we want to link our program to.  The
 #  wiringPi library's file name is `libwiringPi.so'; therefore, the library's
 #  name is `wiringPi' (strip off the `lib' prefix and the `.so.*' suffix).
-LDFLAGS += -L$(RPIFS)/usr/local/lib
+LDFLAGS += -L$(RPIFS)/usr/local/lib -pthread
 LDLIBS += -lwiringPi
 

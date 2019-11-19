@@ -20,14 +20,14 @@ DEPDIR := .d
 DEPFLAGS = -MT $@ -MMD -MF $(DEPDIR)/$*.Td
 
 # C compiler flags
-CFLAGS.common := -std=c11 -pthread
+CFLAGS.common := -std=c11 
 CFLAGS.optimize := -O3
 CFLAGS := $(CFLAGS.common) $(CFLAGS.optimize)
 COMPILE.c = $(CC) $(DEPFLAGS) $(CPPFLAGS) $(CFLAGS) $(TARGET_ARCH) -c
 
 # C++ compiler flags
 CXXFLAGS.common := -std=c++11 -pthread
-CXXFLAGS.optimize := -O3
+CXXFLAGS.optimize := -O
 CXXFLAGS := $(CXXFLAGS.common) $(CXXFLAGS.optimize)
 COMPILE.cc = $(CXX) $(DEPFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(TARGET_ARCH) -c
 
