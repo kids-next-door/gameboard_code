@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <unistd.h>
+#include <sched.h>
 
 #include "gameboard.h"
 
@@ -44,6 +45,8 @@ void right_button_isr() {
 }
 
 int main() {
+    struct sched_param parameters;
+    sched_setscheduler(0, SCHED_RR, &parameters);
 
     int exit_code = 0; 
 
