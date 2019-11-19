@@ -81,8 +81,9 @@ int main() {
        
     }
  
+    //Waits for all threads to exit
     pthread_exit(NULL);
-}
+}// End main
 
 
 void up_thread_fn(void *socket_connection){
