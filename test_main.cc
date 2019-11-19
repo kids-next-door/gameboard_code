@@ -19,27 +19,27 @@ std::mutex left_mutex;
 std::mutex right_mutex;
 std::mutex cout_mutex;
 
-void up_thread_fn(void*);
-void down_thread_fn(void*);
-void left_thread_fn(void*);
-void right_thread_fn(void*);
+void *up_thread_fn(void*);
+void *down_thread_fn(void*);
+void *left_thread_fn(void*);
+void *right_thread_fn(void*);
 
 
 //Interrupts
 //Just set a signal to say the button was pressed cause want them short
-void *up_button_isr() {
+void up_button_isr() {
     up_pressed = true;
 }
 
-void *down_button_isr() {
+void down_button_isr() {
     down_pressed = true;
 }
 
-void *left_button_isr() {
+void left_button_isr() {
     left_pressed = true;
 }
 
-void *right_button_isr() {
+void right_button_isr() {
     right_pressed = true;
 }
 
@@ -86,7 +86,7 @@ int main() {
 }// End main
 
 
-void up_thread_fn(void *socket_connection){
+void *up_thread_fn(void *socket_connection){
 
     //Do some socket things
 
@@ -116,7 +116,7 @@ void up_thread_fn(void *socket_connection){
     }
 }
 
-void down_thread_fn(void *socket_connection){
+void *down_thread_fn(void *socket_connection){
 
     //Do some socket things
 
@@ -146,7 +146,7 @@ void down_thread_fn(void *socket_connection){
     }
 }
 
-void left_thread_fn(void *socket_connection){
+void *left_thread_fn(void *socket_connection){
 
     //Do some socket things
 
@@ -176,7 +176,7 @@ void left_thread_fn(void *socket_connection){
     }
 }
 
-void right_thread_fn(void *socket_connection){
+void *right_thread_fn(void *socket_connection){
 
     //Do some socket things
 
