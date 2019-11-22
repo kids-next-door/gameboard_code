@@ -19,11 +19,20 @@ volatile bool up_pressed = false;
 volatile bool down_pressed = false;
 volatile bool left_pressed = false;
 volatile bool right_pressed = false;
+volatile bool upleft_pressed = false;
+volatile bool upright_pressed = false;
+volatile bool downleft_pressed = false;
+volatile bool downright_pressed = false;
 
 std::mutex up_mutex;
 std::mutex down_mutex;
 std::mutex left_mutex;
 std::mutex right_mutex;
+std::mutex upleft_mutex;
+std::mutex upright_mutex;
+std::mutex downleft_mutex;
+std::mutex downright_mutex;
+
 std::mutex cout_mutex;
 
 std::mutex _conn_lock;
@@ -34,6 +43,10 @@ void *up_thread_fn(void*);
 void *down_thread_fn(void*);
 void *left_thread_fn(void*);
 void *right_thread_fn(void*);
+void *upleft_thread_fn(void*);
+void *upright_thread_fn(void*);
+void *downleft_thread_fn(void*);
+void *downright_thread_fn(void*);
 
 
 //Interrupts
@@ -52,6 +65,22 @@ void left_button_isr() {
 
 void right_button_isr() {
     right_pressed = true;
+}
+
+void upleft_button_isr() {
+    upleft_pressed = true;
+}
+
+void upright_button_isr() {
+    upright_pressed = true;
+}
+
+void downleft_button_isr() {
+    downleft_pressed = true;
+}
+
+void downright_button_isr() {
+    downright_pressed = true;
 }
 
 sio::socket::ptr socket_ptr;
@@ -95,9 +124,6 @@ int main() {
 	socket_ptr->emit("join room", sio::string_message::create(room_code));
 	socket_ptr->emit("set username", sio::string_message::create(display_name));
 	
-	
-
-	
     controller::gameboard &mat = controller::gameboard::getInstance();
 
     //Set up interrupts for the button pins
@@ -105,19 +131,33 @@ int main() {
     mat.registerISR(controller::gameboard::down_button, &down_button_isr);
     mat.registerISR(controller::gameboard::left_button, &left_button_isr);
     mat.registerISR(controller::gameboard::right_button, &right_button_isr);
+	mat.registerISR(controller::gameboard::upleft_button, &upleft_button_isr);
+	mat.registerISR(controller::gameboard::upright_button, &upright_button_isr);
+	mat.registerISR(controller::gameboard::downleft_button, &downleft_button_isr);
+	mat.registerISR(controller::gameboard::downright_button, &downright_button_isr);
 
     //Create threads for handling interrupts
     pthread_t up_thread;
     pthread_t down_thread;
     pthread_t left_thread;
     pthread_t right_thread;
+	pthread_t upleft_thread;
+	pthread_t upright_thread;
+	pthread_t downleft_thread;
+	pthread_t downright_thread;
 
     int up_err = pthread_create(&up_thread, NULL, up_thread_fn, NULL);
     int down_err = pthread_create(&down_thread, NULL, down_thread_fn, NULL);
     int left_err = pthread_create(&left_thread, NULL, left_thread_fn, NULL);
     int right_err = pthread_create(&right_thread, NULL, right_thread_fn, NULL);
+	int upleft_err = pthread_create(&upleft_thread, NULL, upleft_thread_fn, NULL);
+	int upright_err = pthread_create(&upright_thread, NULL, upright_thread_fn, NULL);
+	int downleft_err = pthread_create(&downleft_thread, NULL, downleft_thread_fn, NULL);
+	int downright_err = pthread_create(&downright_thread, NULL, downright_thread_fn, NULL);
 
-    if( up_err || down_err || left_err || right_err) {
+
+    if( up_err || down_err || left_err || right_err ||
+		upleft_err || upright_err || downleft_err || downright_err ) {
         std::cout << "ERROR:: error in thread creation; aborting..." << std::endl;
         if(!up_err)
         { pthread_cancel(up_thread); }
@@ -127,17 +167,27 @@ int main() {
         { pthread_cancel(left_thread); }
         if(!right_err)
         { pthread_cancel(right_thread); }
+		if(!upleft_err)
+        { pthread_cancel(upleft_thread); }
+		if(!upright_err)
+        { pthread_cancel(upright_thread); }
+		if(!downleft_err)
+        { pthread_cancel(downleft_thread); }
+		if(!downright_err)
+        { pthread_cancel(downright_thread); }
 
         pthread_exit(NULL);
        
     }
- 
+	
+	//socket_ptr->emit("initialize");
+	//client_conn.sync_close();
     //Waits for all threads to exit
     pthread_exit(NULL);
 }// End main
 
 
-void *up_thread_fn(void *socket_connection){
+void *up_thread_fn(void *arg){
 
     while(1) {
 
@@ -146,7 +196,9 @@ void *up_thread_fn(void *socket_connection){
             //Replace this with what I actually want to happen
             cout_mutex.lock();
             std::cout << "Up button pressed" << std::endl;
-            cout_mutex.unlock();
+			cout_mutex.unlock();
+					
+			socket_ptr->emit("move",sio::string_message::create("up"));
 
             up_mutex.lock();
             up_pressed = false;
@@ -165,7 +217,7 @@ void *up_thread_fn(void *socket_connection){
     }
 }
 
-void *down_thread_fn(void *socket_connection){
+void *down_thread_fn(void *arg){
 
     //Do some socket things
 
@@ -177,6 +229,8 @@ void *down_thread_fn(void *socket_connection){
             cout_mutex.lock();
             std::cout << "down button pressed" << std::endl;
             cout_mutex.unlock();
+			
+			socket_ptr->emit("move",sio::string_message::create("down"));
 
             down_mutex.lock();
             down_pressed = false;
@@ -195,10 +249,10 @@ void *down_thread_fn(void *socket_connection){
     }
 }
 
-void *left_thread_fn(void *socket_connection){
+void *left_thread_fn(void *arg){		
 
     //Do some socket things
-
+		
     while(1) {
 
         if(left_pressed) {
@@ -207,6 +261,8 @@ void *left_thread_fn(void *socket_connection){
             cout_mutex.lock();
             std::cout << "Left button pressed" << std::endl;
             cout_mutex.unlock();
+			
+			socket_ptr->emit("move",sio::string_message::create("left"));
 
             left_mutex.lock();
             left_pressed = false;
@@ -225,7 +281,7 @@ void *left_thread_fn(void *socket_connection){
     }
 }
 
-void *right_thread_fn(void *socket_connection){
+void *right_thread_fn(void* arg){
 
     //Do some socket things
 
@@ -238,6 +294,8 @@ void *right_thread_fn(void *socket_connection){
             std::cout << "Right button pressed" << std::endl;
             cout_mutex.unlock();
 
+			socket_ptr->emit("move",sio::string_message::create("right"));
+			
             right_mutex.lock();
             right_pressed = false;
             right_mutex.unlock();
@@ -254,3 +312,131 @@ void *right_thread_fn(void *socket_connection){
         pthread_testcancel();
     }
 }
+	
+void *upleft_thread_fn(void* arg){
+
+    //Do some socket things
+
+    while(1) {
+
+        if(upleft_pressed) {
+
+            //Replace this with what I actually want to happen
+            cout_mutex.lock();
+            std::cout << "Up Left button pressed" << std::endl;
+            cout_mutex.unlock();
+
+			socket_ptr->emit("move",sio::string_message::create("up left"));
+			
+            upleft_mutex.lock();
+            upleft_pressed = false;
+            upleft_mutex.unlock();
+
+            //This is sleeps the thread for the debounce time
+            usleep(DEBOUNCE_TIME_USECS);
+        }
+        else{
+            usleep(100000);
+        }
+
+        //Some of the functions used may also be cancellation points
+        //But create a manual one for safety
+        pthread_testcancel();
+    }
+}
+
+void *upright_thread_fn(void* arg){
+
+    //Do some socket things
+
+    while(1) {
+
+        if(upright_pressed) {
+
+            //Replace this with what I actually want to happen
+            cout_mutex.lock();
+            std::cout << "Up Right button pressed" << std::endl;
+            cout_mutex.unlock();
+
+			socket_ptr->emit("move",sio::string_message::create("up right"));
+			
+            upright_mutex.lock();
+            upright_pressed = false;
+            upright_mutex.unlock();
+
+            //This is sleeps the thread for the debounce time
+            usleep(DEBOUNCE_TIME_USECS);
+        }
+        else{
+            usleep(100000);
+        }
+
+        //Some of the functions used may also be cancellation points
+        //But create a manual one for safety
+        pthread_testcancel();
+    }
+}	
+
+void *downleft_thread_fn(void* arg){
+
+    //Do some socket things
+
+    while(1) {
+
+        if(downleft_pressed) {
+
+            //Replace this with what I actually want to happen
+            cout_mutex.lock();
+            std::cout << "Up Left button pressed" << std::endl;
+            cout_mutex.unlock();
+
+			socket_ptr->emit("move",sio::string_message::create("down left"));
+			
+            downleft_mutex.lock();
+            downleft_pressed = false;
+            downleft_mutex.unlock();
+
+            //This is sleeps the thread for the debounce time
+            usleep(DEBOUNCE_TIME_USECS);
+        }
+        else{
+            usleep(100000);
+        }
+
+        //Some of the functions used may also be cancellation points
+        //But create a manual one for safety
+        pthread_testcancel();
+    }
+}	
+
+void *downright_thread_fn(void* arg){
+
+    //Do some socket things
+
+    while(1) {
+
+        if(downright_pressed) {
+
+            //Replace this with what I actually want to happen
+            cout_mutex.lock();
+            std::cout << "Down Right button pressed" << std::endl;
+            cout_mutex.unlock();
+
+			socket_ptr->emit("move",sio::string_message::create("down right"));
+			
+            downright_mutex.lock();
+            downright_pressed = false;
+            downright_mutex.unlock();
+
+            //This is sleeps the thread for the debounce time
+            usleep(DEBOUNCE_TIME_USECS);
+        }
+        else{
+            usleep(100000);
+        }
+
+        //Some of the functions used may also be cancellation points
+        //But create a manual one for safety
+        pthread_testcancel();
+    }
+}	
