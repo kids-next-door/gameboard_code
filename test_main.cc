@@ -3,6 +3,7 @@
 #include <string>
 #include <cctype>
 #include <algorithm>
+#include <condition_variable>
 
 #include <pthread.h>
 #include <unistd.h>
@@ -25,6 +26,10 @@ std::mutex left_mutex;
 std::mutex right_mutex;
 std::mutex cout_mutex;
 
+std::mutex _conn_lock;
+std::condition_variable_any _conn_wait;
+bool conn_finish = false;
+
 void *up_thread_fn(void*);
 void *down_thread_fn(void*);
 void *left_thread_fn(void*);
@@ -36,7 +41,7 @@ void *right_thread_fn(void*);
 void up_button_isr() {
     up_pressed = true;
 }
-
+	
 void down_button_isr() {
     down_pressed = true;
 }
@@ -49,6 +54,14 @@ void right_button_isr() {
     right_pressed = true;
 }
 
+sio::socket::ptr socket_ptr;
+
+void on_connect(){
+	_conn_lock.lock();
+	_conn_wait.notify_all();
+	conn_finish = true;
+	_conn_lock.unlock();
+}
 
 int main() {
     struct sched_param parameters;
@@ -63,8 +76,19 @@ int main() {
 	} while( std::find_if_not(room_code.begin(), room_code.end(),isalnum) != room_code.end());
 	
 	sio::client client_conn;
+	client_conn.set_open_listener(on_connect);
     client_conn.connect("http://ec2-3-83-68-92.compute-1.amazonaws.com:4000/");
+	_conn_lock.lock();
+	if(!conn_finish) {
+		_conn_wait.wait(_conn_lock);
+	}
+	_conn_lock.unlock();
+	
+	socket_ptr = client_conn.socket();
+	
+	socket_ptr->emit("join room", sio::string_message::create(room_code));
 
+	
     controller::gameboard &mat = controller::gameboard::getInstance();
 
     //Set up interrupts for the button pins
@@ -105,8 +129,6 @@ int main() {
 
 
 void *up_thread_fn(void *socket_connection){
-
-    //Do some socket things
 
     while(1) {
 
