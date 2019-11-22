@@ -1,11 +1,16 @@
 #include <iostream>
 #include <mutex>
+#include <string>
+#include <cctype>
+#include <algorithm>
 
 #include <pthread.h>
 #include <unistd.h>
 #include <sched.h>
 
 #include "gameboard.h"
+
+#include <sio_client.h>
 
 #define DEBOUNCE_TIME_USECS 500000
 
@@ -44,11 +49,21 @@ void right_button_isr() {
     right_pressed = true;
 }
 
+
 int main() {
     struct sched_param parameters;
     sched_setscheduler(0, SCHED_RR, &parameters);
 
     int exit_code = 0; 
+	
+	std::string room_code;
+	std::cout << "Enter a Room Code to Join: " << std::endl;
+	do {
+		std::cin >> room_code;
+	} while( std::find_if_not(room_code.begin(), room_code.end(),isalnum) != room_code.end());
+	
+	sio::client client_conn;
+    client_conn.connect("http://ec2-3-83-68-92.compute-1.amazonaws.com:4000/");
 
     controller::gameboard &mat = controller::gameboard::getInstance();
 

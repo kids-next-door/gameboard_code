@@ -50,5 +50,5 @@ CPPFLAGS += -I$(RPIFS)/usr/local/include -I./../socket.io-client-cpp/build/inclu
 #  wiringPi library's file name is `libwiringPi.so'; therefore, the library's
 #  name is `wiringPi' (strip off the `lib' prefix and the `.so.*' suffix).
 LDFLAGS += -L./../socket.io-client-cpp/build/lib/Release
-LDLIBS += -lwiringPi -pthread -lboost_date_time -lboost_random -lboost_system -lsioclient -lsioclient_tls
-
+LDLIBS += -lwiringPi  -lsioclient -lsioclient_tls -lboost_date_time -lboost_random -lboost_system -pthread
+#THE ORDER OF THE LIBS MATTERS SOMETHING SERIOUS
