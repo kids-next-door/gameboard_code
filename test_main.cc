@@ -75,6 +75,12 @@ int main() {
 		std::cin >> room_code;
 	} while( std::find_if_not(room_code.begin(), room_code.end(),isalnum) != room_code.end());
 	
+	std::string display_name;
+	std::cout << "What would you like your display name to be?" << std::endl;
+	do {
+		std::cin >> display_name;
+	} while( std::find_if_not(display_name.begin(), display_name.end(), isalnum) != display_name.end());
+	
 	sio::client client_conn;
 	client_conn.set_open_listener(on_connect);
     client_conn.connect("http://ec2-3-83-68-92.compute-1.amazonaws.com:4000/");
@@ -87,6 +93,9 @@ int main() {
 	socket_ptr = client_conn.socket();
 	
 	socket_ptr->emit("join room", sio::string_message::create(room_code));
+	socket_ptr->emit("set username", sio::string_message::create(display_name));
+	
+	
 
 	
     controller::gameboard &mat = controller::gameboard::getInstance();
