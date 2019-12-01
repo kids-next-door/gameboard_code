@@ -13,7 +13,7 @@
 
 #include <sio_client.h>
 
-#define DEBOUNCE_TIME_USECS 500000
+#define DEBOUNCE_TIME_USECS 1000000
 
 volatile bool up_pressed = false;
 volatile bool down_pressed = false;
@@ -121,7 +121,7 @@ int main() {
 	
 	socket_ptr = client_conn.socket();
 	
-	socket_ptr->emit("join room", sio::string_message::create(room_code));
+	socket_ptr->emit("set room", sio::string_message::create(room_code));
 	socket_ptr->emit("set username", sio::string_message::create(display_name));
 	
     controller::gameboard &mat = controller::gameboard::getInstance();
@@ -175,15 +175,20 @@ int main() {
         { pthread_cancel(downleft_thread); }
 		if(!downright_err)
         { pthread_cancel(downright_thread); }
-
-        pthread_exit(NULL);
        
     }
-	
-	//socket_ptr->emit("initialize");
+//	socket_ptr->on('ready',sio::socket::event_listener_aux([&]))
+//	socket_ptr->emit("connect");
 	//client_conn.sync_close();
     //Waits for all threads to exit
-    pthread_exit(NULL);
+	pthread_join(up_thread,NULL);
+	pthread_join(down_thread,NULL);
+	pthread_join(left_thread,NULL);
+	pthread_join(right_thread,NULL);
+	pthread_join(upleft_thread,NULL);
+	pthread_join(upright_thread,NULL);
+	pthread_join(downleft_thread,NULL);
+	pthread_join(downright_thread,NULL);
 }// End main
 
 
@@ -387,7 +392,7 @@ void *downleft_thread_fn(void* arg){
 
             //Replace this with what I actually want to happen
             cout_mutex.lock();
-            std::cout << "Up Left button pressed" << std::endl;
+            std::cout << "Down Left button pressed" << std::endl;
             cout_mutex.unlock();
 
 			socket_ptr->emit("move",sio::string_message::create("down left"));
