@@ -15,14 +15,14 @@
 
 #define DEBOUNCE_TIME_USECS 1500000
 
-volatile bool up_pressed = false;
-volatile bool down_pressed = false;
-volatile bool left_pressed = false;
-volatile bool right_pressed = false;
-volatile bool upleft_pressed = false;
-volatile bool upright_pressed = false;
-volatile bool downleft_pressed = false;
-volatile bool downright_pressed = false;
+bool up_pressed = false;
+bool down_pressed = false;
+bool left_pressed = false;
+bool right_pressed = false;
+bool upleft_pressed = false;
+bool upright_pressed = false;
+bool downleft_pressed = false;
+bool downright_pressed = false;
 
 std::mutex up_mutex;
 std::mutex down_mutex;
