@@ -13,7 +13,7 @@
 
 #include <sio_client.h>
 
-#define DEBOUNCE_TIME_USECS 1000000
+#define DEBOUNCE_TIME_USECS 1500000
 
 volatile bool up_pressed = false;
 volatile bool down_pressed = false;
@@ -52,35 +52,59 @@ void *downright_thread_fn(void*);
 //Interrupts
 //Just set a signal to say the button was pressed cause want them short
 void up_button_isr() {
-    up_pressed = true;
+	if(up_mutex.try_lock()){
+		up_pressed = true;
+		up_mutex.unlock();
+	}
 }
 	
 void down_button_isr() {
-    down_pressed = true;
+	if(down_mutex.try_lock()){
+		down_pressed = true;
+		down_mutex.unlock();
+	}
 }
 
 void left_button_isr() {
-    left_pressed = true;
+	if(left_mutex.try_lock()){
+		    left_pressed = true;
+			left_mutex.unlock();
+	}
 }
 
 void right_button_isr() {
-    right_pressed = true;
+	if(right_mutex.try_lock()){
+		right_pressed = true;
+		right_mutex.unlock();
+	}
 }
 
 void upleft_button_isr() {
-    upleft_pressed = true;
+	if(upleft_mutex.try_lock()){
+		upleft_pressed = true;
+		upleft_mutex.unlock();
+	}
 }
 
 void upright_button_isr() {
-    upright_pressed = true;
+	if(upright_mutex.try_lock()){
+		upright_pressed = true;
+		upright_mutex.unlock();
+	}
 }
 
 void downleft_button_isr() {
-    downleft_pressed = true;
+	if(downleft_mutex.try_lock()){
+		downleft_pressed = true;
+		downleft_mutex.unlock();
+	}
 }
 
 void downright_button_isr() {
-    downright_pressed = true;
+	if(downright_mutex.try_lock()){
+		downright_pressed = true;
+		downright_mutex.unlock();
+	}
 }
 
 sio::socket::ptr socket_ptr;
@@ -193,9 +217,9 @@ int main() {
 
 
 void *up_thread_fn(void *arg){
-
+	
     while(1) {
-
+		
         if(up_pressed) {
 
             //Replace this with what I actually want to happen
@@ -207,10 +231,11 @@ void *up_thread_fn(void *arg){
 
             up_mutex.lock();
             up_pressed = false;
-            up_mutex.unlock();
 
             //This is sleeps the thread for the debounce time
             usleep(DEBOUNCE_TIME_USECS);
+			up_mutex.unlock();
+
         }
         else{
             usleep(100000);
@@ -224,25 +249,23 @@ void *up_thread_fn(void *arg){
 
 void *down_thread_fn(void *arg){
 
-    //Do some socket things
-
     while(1) {
 
-        if(down_pressed) {
+        if(down_pressed ) {
 
             //Replace this with what I actually want to happen
             cout_mutex.lock();
-            std::cout << "down button pressed" << std::endl;
+            std::cout << "Down button pressed" << std::endl;
             cout_mutex.unlock();
 			
 			socket_ptr->emit("move",sio::string_message::create("down"));
 
             down_mutex.lock();
             down_pressed = false;
-            down_mutex.unlock();
 
             //This is sleeps the thread for the debounce time
             usleep(DEBOUNCE_TIME_USECS);
+			down_mutex.unlock();
         }
         else{
             usleep(100000);
@@ -256,7 +279,6 @@ void *down_thread_fn(void *arg){
 
 void *left_thread_fn(void *arg){		
 
-    //Do some socket things
 		
     while(1) {
 
@@ -271,10 +293,11 @@ void *left_thread_fn(void *arg){
 
             left_mutex.lock();
             left_pressed = false;
-            left_mutex.unlock();
 
             //This is sleeps the thread for the debounce time
             usleep(DEBOUNCE_TIME_USECS);
+			left_mutex.unlock();
+
         }
         else{
             usleep(100000);
@@ -288,8 +311,7 @@ void *left_thread_fn(void *arg){
 
 void *right_thread_fn(void* arg){
 
-    //Do some socket things
-
+	
     while(1) {
 
         if(right_pressed) {
@@ -303,10 +325,10 @@ void *right_thread_fn(void* arg){
 			
             right_mutex.lock();
             right_pressed = false;
-            right_mutex.unlock();
 
             //This is sleeps the thread for the debounce time
             usleep(DEBOUNCE_TIME_USECS);
+			right_mutex.unlock();
         }
         else{
             usleep(100000);
@@ -320,8 +342,6 @@ void *right_thread_fn(void* arg){
 	
 void *upleft_thread_fn(void* arg){
 
-    //Do some socket things
-
     while(1) {
 
         if(upleft_pressed) {
@@ -331,14 +351,15 @@ void *upleft_thread_fn(void* arg){
             std::cout << "Up Left button pressed" << std::endl;
             cout_mutex.unlock();
 
-			socket_ptr->emit("move",sio::string_message::create("up left"));
+			socket_ptr->emit("move",sio::string_message::create("upLeft"));
 			
             upleft_mutex.lock();
             upleft_pressed = false;
-            upleft_mutex.unlock();
+
 
             //This is sleeps the thread for the debounce time
             usleep(DEBOUNCE_TIME_USECS);
+			upleft_mutex.unlock();
         }
         else{
             usleep(100000);
@@ -352,10 +373,8 @@ void *upleft_thread_fn(void* arg){
 
 void *upright_thread_fn(void* arg){
 
-    //Do some socket things
-
     while(1) {
-
+		
         if(upright_pressed) {
 
             //Replace this with what I actually want to happen
@@ -363,14 +382,15 @@ void *upright_thread_fn(void* arg){
             std::cout << "Up Right button pressed" << std::endl;
             cout_mutex.unlock();
 
-			socket_ptr->emit("move",sio::string_message::create("up right"));
+			socket_ptr->emit("move",sio::string_message::create("upRight"));
 			
             upright_mutex.lock();
             upright_pressed = false;
-            upright_mutex.unlock();
+
 
             //This is sleeps the thread for the debounce time
             usleep(DEBOUNCE_TIME_USECS);
+            upright_mutex.unlock();
         }
         else{
             usleep(100000);
@@ -383,9 +403,7 @@ void *upright_thread_fn(void* arg){
 }	
 
 void *downleft_thread_fn(void* arg){
-
-    //Do some socket things
-
+	
     while(1) {
 
         if(downleft_pressed) {
@@ -395,14 +413,15 @@ void *downleft_thread_fn(void* arg){
             std::cout << "Down Left button pressed" << std::endl;
             cout_mutex.unlock();
 
-			socket_ptr->emit("move",sio::string_message::create("down left"));
+			socket_ptr->emit("move",sio::string_message::create("downLeft"));
 			
             downleft_mutex.lock();
             downleft_pressed = false;
-            downleft_mutex.unlock();
+           
 
             //This is sleeps the thread for the debounce time
-            usleep(DEBOUNCE_TIME_USECS);
+			usleep(DEBOUNCE_TIME_USECS);
+			downleft_mutex.unlock();
         }
         else{
             usleep(100000);
@@ -416,8 +435,6 @@ void *downleft_thread_fn(void* arg){
 
 void *downright_thread_fn(void* arg){
 
-    //Do some socket things
-
     while(1) {
 
         if(downright_pressed) {
@@ -427,14 +444,15 @@ void *downright_thread_fn(void* arg){
             std::cout << "Down Right button pressed" << std::endl;
             cout_mutex.unlock();
 
-			socket_ptr->emit("move",sio::string_message::create("down right"));
+			socket_ptr->emit("move",sio::string_message::create("downRight"));
 			
             downright_mutex.lock();
             downright_pressed = false;
-            downright_mutex.unlock();
+
 
             //This is sleeps the thread for the debounce time
             usleep(DEBOUNCE_TIME_USECS);
+            downright_mutex.unlock();
         }
         else{
             usleep(100000);
