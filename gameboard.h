@@ -19,7 +19,7 @@ class gameboard {
             //White wires
             up_button = 22,
             //Green Wires
-            down_button = 21
+            down_button = 21,
             //Blue
             left_button = 24,
             //Red 
