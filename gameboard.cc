@@ -13,13 +13,20 @@ namespace controller {
         wiringPi::pinMode( down_button, INPUT );
         wiringPi::pinMode( left_button, INPUT );
         wiringPi::pinMode( right_button, INPUT ); 
-
-
+		wiringPi::pinMode( upleft_button, INPUT);
+		wiringPi::pinMode( upright_button, INPUT);
+		wiringPi::pinMode( downleft_button, INPUT);
+		wiringPi::pinMode( downright_button, INPUT);
+		
         //Enable the internal pull down resistors
         wiringPi::pullUpDnControl(up_button, PUD_DOWN );
         wiringPi::pullUpDnControl(down_button, PUD_DOWN );
         wiringPi::pullUpDnControl(left_button, PUD_DOWN );
         wiringPi::pullUpDnControl(right_button, PUD_DOWN );
+		wiringPi::pullUpDnControl(upleft_button, PUD_DOWN );
+		wiringPi::pullUpDnControl(upright_button, PUD_DOWN );
+		wiringPi::pullUpDnControl(downleft_button, PUD_DOWN );
+		wiringPi::pullUpDnControl(downright_button, PUD_DOWN );
     } // End constructor
 
     //Destructor
@@ -29,11 +36,19 @@ namespace controller {
         wiringPi::pinMode( down_button, INPUT );
         wiringPi::pinMode( left_button, INPUT );
         wiringPi::pinMode( right_button, INPUT ); 
+		wiringPi::pinMode( upleft_button, INPUT );
+		wiringPi::pinMode( upright_button, INPUT );
+		wiringPi::pinMode( downleft_button, INPUT );
+		wiringPi::pinMode( downright_button, INPUT );
 
         wiringPi::pullUpDnControl(up_button, PUD_OFF );
         wiringPi::pullUpDnControl(down_button, PUD_OFF );
         wiringPi::pullUpDnControl(left_button, PUD_OFF );
-        wiringPi::pullUpDnControl(right_button, PUD_OFF) ;
+        wiringPi::pullUpDnControl(right_button, PUD_OFF );
+		wiringPi::pullUpDnControl(upleft_button, PUD_OFF );
+		wiringPi::pullUpDnControl(upright_button, PUD_OFF );
+		wiringPi::pullUpDnControl(downleft_button, PUD_OFF );
+		wiringPi::pullUpDnControl(downright_button, PUD_OFF );
 
     }
 

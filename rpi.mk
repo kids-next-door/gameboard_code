@@ -41,7 +41,7 @@ endif
 # C preprocessor flags
 # Specify the path to the folder where the wiringPi library's header files are
 # stored.
-CPPFLAGS += -I$(RPIFS)/usr/local/include
+CPPFLAGS += -I$(RPIFS)/usr/local/include -I./../socket.io-client-cpp/build/include
 
 # GCC linker/loader (ld) flags
 # -L Specify the path to the folder that contains the library file
@@ -49,6 +49,6 @@ CPPFLAGS += -I$(RPIFS)/usr/local/include
 # -l Specify the name of the library we want to link our program to.  The
 #  wiringPi library's file name is `libwiringPi.so'; therefore, the library's
 #  name is `wiringPi' (strip off the `lib' prefix and the `.so.*' suffix).
-LDFLAGS += -L$(RPIFS)/usr/local/lib
-LDLIBS += -lwiringPi
-
+LDFLAGS += -L./../socket.io-client-cpp/build/lib/Release
+LDLIBS += -lwiringPi  -lsioclient -lsioclient_tls -lboost_date_time -lboost_random -lboost_system -pthread
+#THE ORDER OF THE LIBS MATTERS SOMETHING SERIOUS

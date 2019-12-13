@@ -19,15 +19,15 @@ class gameboard {
             //White wires
             up_button = 22,
             //Green Wires
-            down_button = 21,
+            down_button = 21
             //Blue
             left_button = 24,
             //Red 
             right_button = 23,
-            // up_right_buttton = ,
-            // down_right_button = ,
-            // up_left_button = ,
-            // down_left_button = ,
+            upleft_button = 26,
+		upright_button = 27,
+            downleft_button = 28,
+            downright_button = 29
         };
 
         //Wrapper for registering wiringPi ISRs
